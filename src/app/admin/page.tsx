@@ -17,48 +17,66 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [
-    totalPosts,
-    publishedPostsCount,
-    draftPostsCount,
-    subscribersCount,
-    allPosts,
-    categories,
-  ] = await Promise.all([
-    prisma.post.count(),
-    prisma.post.count({ where: { status: "PUBLISHED" } }),
-    prisma.post.count({ where: { status: "DRAFT" } }),
-    prisma.newsletterSubscriber.count(),
-    prisma.post.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 6,
-      include: {
-        category: true,
-        author: { select: { name: true } },
-      },
-    }),
-    prisma.category.findMany({
-      include: {
-        posts: { select: { views: true } },
-      },
-    }),
-  ]);
+  let totalPosts = 0;
+  let publishedPostsCount = 0;
+  let draftPostsCount = 0;
+  let subscribersCount = 0;
+  let allPosts: any[] = [];
+  let categories: any[] = [];
+  let totalViews = 0;
 
-  // Calculate total views
-  const totalViewsAggregate = await prisma.post.aggregate({
-    _sum: { views: true },
-  });
-  const totalViews = totalViewsAggregate._sum.views || 0;
+  try {
+    const [
+      dbTotalPosts,
+      dbPublishedPostsCount,
+      dbDraftPostsCount,
+      dbSubscribersCount,
+      dbAllPosts,
+      dbCategories,
+      totalViewsAggregate,
+    ] = await Promise.all([
+      prisma.post.count(),
+      prisma.post.count({ where: { status: "PUBLISHED" } }),
+      prisma.post.count({ where: { status: "DRAFT" } }),
+      prisma.newsletterSubscriber.count(),
+      prisma.post.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        include: {
+          category: true,
+          author: { select: { name: true } },
+        },
+      }),
+      prisma.category.findMany({
+        include: {
+          posts: { select: { views: true } },
+        },
+      }),
+      prisma.post.aggregate({
+        _sum: { views: true },
+      }),
+    ]);
+
+    totalPosts = dbTotalPosts;
+    publishedPostsCount = dbPublishedPostsCount;
+    draftPostsCount = dbDraftPostsCount;
+    subscribersCount = dbSubscribersCount;
+    allPosts = dbAllPosts;
+    categories = dbCategories;
+    totalViews = totalViewsAggregate._sum.views || 0;
+  } catch (error) {
+    console.error("Admin dashboard query fallback:", error);
+  }
 
   // Calculate category metrics
   const categoryStats = categories.map((cat) => {
-    const views = cat.posts.reduce((sum, p) => sum + p.views, 0);
+    const views = cat.posts ? cat.posts.reduce((sum: number, p: { views: number }) => sum + p.views, 0) : 0;
     return {
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
       color: cat.color || "#3b82f6",
-      postCount: cat.posts.length,
+      postCount: cat.posts ? cat.posts.length : 0,
       views,
     };
   }).sort((a, b) => b.views - a.views);

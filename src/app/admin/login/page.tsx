@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Shield, Lock, Mail, ArrowRight, Loader2, KeyRound, Clock, CheckCircle2 } from "lucide-react";
+import { Shield, Lock, Mail, ArrowRight, Loader2, Clock, CheckCircle2 } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
@@ -42,11 +42,6 @@ function LoginForm() {
     }
   };
 
-  const handleDemoFill = () => {
-    setEmail("admin@statetostate.com");
-    setPassword("AdminPassword123!");
-    setError("");
-  };
 
   return (
     <div className="w-full max-w-md space-y-7 rounded-3xl border border-zinc-200 bg-white p-8 shadow-xl shadow-zinc-200/50 dark:border-zinc-800 dark:bg-zinc-900/90 dark:shadow-none">
@@ -147,16 +142,6 @@ function LoginForm() {
         </button>
       </form>
 
-      {/* Demo Fast-fill helper */}
-      <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-        <button
-          type="button"
-          onClick={handleDemoFill}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 py-2 text-xs font-medium text-blue-700 hover:bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 cursor-pointer"
-        >
-          <KeyRound className="h-3.5 w-3.5" /> Auto-fill Demo Admin Credentials
-        </button>
-      </div>
 
       <div className="text-center">
         <Link

@@ -42,15 +42,12 @@ yarn-error.log*
 !.env.example
 
 # databases & SQLite files
-*.db
 *.db-journal
-*.sqlite
 *.sqlite-journal
-*.sqlite3
-dev.db
-prisma/dev.db
-prisma/*.db
 prisma/*.db-journal
+
+# Keep seeded SQLite database template tracked for deployment
+!prisma/dev.db
 
 # user uploads
 /public/uploads/*
