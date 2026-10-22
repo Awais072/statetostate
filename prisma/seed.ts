@@ -4,16 +4,14 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding database with initial data...");
+  console.log("Checking database initialization status...");
 
-  // 1. Clean existing records (safe order)
-  await prisma.postTag.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.post.deleteMany();
-  await prisma.tag.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.newsletterSubscriber.deleteMany();
-  await prisma.user.deleteMany();
+  // 1. Check if database already has posts to prevent wiping production data
+  const postCount = await prisma.post.count().catch(() => 0);
+  if (postCount > 0) {
+    console.log(`Database already contains ${postCount} posts. Preserving live production data.`);
+    return;
+  }
 
   // 2. Create Admin User
   const adminPassword = process.env.ADMIN_PASSWORD || "AdminPassword123!";
