@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 export async function POST() {
   const response = NextResponse.json({ success: true, message: "Logged out" });
-  
-  // Explicitly invalidate and overwrite the auth_token cookie
+
+  // Invalidate and delete auth_token cookie
   response.cookies.set({
     name: "auth_token",
     value: "",
@@ -16,4 +16,8 @@ export async function POST() {
   });
 
   return response;
+}
+
+export async function GET() {
+  return POST();
 }

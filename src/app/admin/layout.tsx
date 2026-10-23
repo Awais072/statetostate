@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -28,6 +28,8 @@ interface AdminUser {
 
 // 15 minutes of idle inactivity before automatic logout
 const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
+const SESSION_STORAGE_KEY = "statetostate_admin_session";
+const ACTIVITY_STORAGE_KEY = "statetostate_last_activity";
 
 export default function AdminLayout({
   children,
@@ -38,68 +40,139 @@ export default function AdminLayout({
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const lastActivityRef = useRef<number>(Date.now());
+  const isLoggingOutRef = useRef<boolean>(false);
 
   // If on login page, render clean container without sidebar
   const isLoginPage = pathname === "/admin/login";
 
-  const handleLogout = useCallback(async (reason: "logged_out" | "inactivity" = "logged_out") => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {
-      // Proceed with redirect even if network hiccups
-    }
-    // Hard redirect to clear all in-memory client state and require re-authentication
-    window.location.href = `/admin/login?reason=${reason}`;
-  }, []);
+  const handleLogout = useCallback(
+    async (reason: "logged_out" | "inactivity" | "tab_closed" = "logged_out") => {
+      if (isLoggingOutRef.current) return;
+      isLoggingOutRef.current = true;
 
-  // Verify active session
-  useEffect(() => {
-    if (!isLoginPage) {
-      fetch("/api/auth/me")
-        .then((res) => {
-          if (res.ok) return res.json();
-          throw new Error();
-        })
-        .then((data) => {
-          if (data.authenticated) {
-            setCurrentUser(data.user);
-          } else {
-            window.location.href = "/admin/login";
-          }
-        })
-        .catch(() => {
-          window.location.href = "/admin/login";
-        });
-    }
-  }, [pathname, isLoginPage]);
+      // Clear tab session tokens
+      try {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        sessionStorage.removeItem(ACTIVITY_STORAGE_KEY);
+      } catch {
+        // ignore
+      }
 
-  // Automatic logout on inactivity
+      try {
+        await fetch("/api/auth/logout", { method: "POST" });
+      } catch {
+        // Proceed with redirect even if network hiccups
+      }
+
+      // Hard redirect to clear all in-memory client state and require re-authentication
+      window.location.href = `/admin/login?reason=${reason}`;
+    },
+    []
+  );
+
+  // Tab closure & active session validation
   useEffect(() => {
     if (isLoginPage) return;
 
-    let timeoutId: NodeJS.Timeout;
+    // Check if this tab has an active admin session token
+    const tabSession = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (!tabSession) {
+      // User closed the tab previously and opened a new tab/window, or navigated directly
+      handleLogout("tab_closed");
+      return;
+    }
 
-    const resetTimer = () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
+    // Verify active session with backend
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error();
+      })
+      .then((data) => {
+        if (data.authenticated) {
+          setCurrentUser(data.user);
+          // Sync activity time
+          const now = Date.now();
+          lastActivityRef.current = now;
+          sessionStorage.setItem(ACTIVITY_STORAGE_KEY, now.toString());
+        } else {
+          handleLogout("logged_out");
+        }
+      })
+      .catch(() => {
+        handleLogout("logged_out");
+      });
+  }, [pathname, isLoginPage, handleLogout]);
+
+  // Robust 15-minute inactivity auto-logout listener
+  useEffect(() => {
+    if (isLoginPage) return;
+
+    // Check inactivity status
+    const checkInactivity = () => {
+      const now = Date.now();
+      const storedTime = parseInt(sessionStorage.getItem(ACTIVITY_STORAGE_KEY) || "0", 10);
+      const lastActive = Math.max(lastActivityRef.current, storedTime);
+
+      if (lastActive > 0 && now - lastActive >= INACTIVITY_TIMEOUT_MS) {
         handleLogout("inactivity");
-      }, INACTIVITY_TIMEOUT_MS);
+        return true;
+      }
+      return false;
     };
 
-    // User interaction listeners
+    // User interaction listener (throttled)
+    const onUserActivity = () => {
+      const now = Date.now();
+      const storedTime = parseInt(sessionStorage.getItem(ACTIVITY_STORAGE_KEY) || "0", 10);
+      const lastActive = Math.max(lastActivityRef.current, storedTime);
+
+      // If user was away for 15+ minutes, immediately log them out instead of resetting the timer!
+      if (lastActive > 0 && now - lastActive >= INACTIVITY_TIMEOUT_MS) {
+        handleLogout("inactivity");
+        return;
+      }
+
+      // Throttle updates to at most once every 3 seconds to avoid event spam
+      if (now - lastActivityRef.current > 3000) {
+        lastActivityRef.current = now;
+        try {
+          sessionStorage.setItem(ACTIVITY_STORAGE_KEY, now.toString());
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    // Tab visibility change (e.g. user returns from another tab or unlocked screen)
+    const onVisibilityChange = () => {
+      if (!document.hidden) {
+        if (!checkInactivity()) {
+          const now = Date.now();
+          lastActivityRef.current = now;
+          sessionStorage.setItem(ACTIVITY_STORAGE_KEY, now.toString());
+        }
+      }
+    };
+
     const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
-
-    resetTimer();
-
     events.forEach((eventName) => {
-      window.addEventListener(eventName, resetTimer, { passive: true });
+      window.addEventListener(eventName, onUserActivity, { passive: true });
     });
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    // Periodic heartbeat check every 10 seconds
+    const intervalId = setInterval(() => {
+      checkInactivity();
+    }, 10000);
 
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
       events.forEach((eventName) => {
-        window.removeEventListener(eventName, resetTimer);
+        window.removeEventListener(eventName, onUserActivity);
       });
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      clearInterval(intervalId);
     };
   }, [isLoginPage, handleLogout]);
 
@@ -152,7 +225,7 @@ export default function AdminLayout({
             {/* Inactivity Security Pill */}
             <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-zinc-100/80 px-2.5 py-1.5 text-[10px] text-zinc-600 dark:bg-zinc-800/60 dark:text-zinc-400">
               <Clock className="h-3 w-3 text-blue-500 shrink-0" />
-              <span>Auto-logout on 15m idle active</span>
+              <span>Auto-logout on 15m idle & tab close</span>
             </div>
 
             {/* Navigation links */}

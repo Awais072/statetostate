@@ -88,7 +88,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Set HTTP-only Cookie
+    // Set HTTP-only Session Cookie (ephemeral: cleared when browser/session ends)
     response.cookies.set({
       name: "auth_token",
       value: token,
@@ -96,7 +96,6 @@ export async function POST(req: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return response;

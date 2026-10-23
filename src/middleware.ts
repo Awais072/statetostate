@@ -30,15 +30,25 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // If authenticated user visits /admin/login, redirect to /admin
+  // If user visits /admin/login
   if (pathname === "/admin/login") {
+    const reason = request.nextUrl.searchParams.get("reason");
+    // If arriving with a logout/timeout reason, delete the cookie and render login page
+    if (reason) {
+      const response = NextResponse.next();
+      response.cookies.delete("auth_token");
+      return response;
+    }
+
     const token = request.cookies.get("auth_token")?.value;
     if (token) {
       try {
         await jwtVerify(token, encodedKey);
         return NextResponse.redirect(new URL("/admin", request.url));
       } catch {
-        // Token invalid, continue to login page
+        const response = NextResponse.next();
+        response.cookies.delete("auth_token");
+        return response;
       }
     }
   }

@@ -33,6 +33,14 @@ function LoginForm() {
         throw new Error(data.error || "Authentication failed");
       }
 
+      // Initialize tab session security tokens
+      try {
+        sessionStorage.setItem("statetostate_admin_session", Date.now().toString());
+        sessionStorage.setItem("statetostate_last_activity", Date.now().toString());
+      } catch {
+        // ignore
+      }
+
       router.push(from);
       router.refresh();
     } catch (err: unknown) {
@@ -59,6 +67,18 @@ function LoginForm() {
       </div>
 
       {/* Notifications for Session Reason */}
+      {reason === "tab_closed" && (
+        <div className="rounded-2xl border border-blue-300 bg-blue-50 p-4 text-xs text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
+          <div className="flex items-center gap-2 font-semibold">
+            <Shield className="h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+            <span>Admin Tab Closed — Re-Authentication Required</span>
+          </div>
+          <p className="mt-1 text-[11px] text-blue-800 dark:text-blue-300/90 leading-relaxed">
+            Your previous admin session closed with the tab. Please re-enter your credentials to access the control center.
+          </p>
+        </div>
+      )}
+
       {reason === "inactivity" && (
         <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300">
           <div className="flex items-center gap-2 font-semibold">
