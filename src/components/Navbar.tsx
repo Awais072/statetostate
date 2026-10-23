@@ -7,10 +7,11 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Search, Menu, X } from "lucide-react";
 
 const CATEGORIES = [
-  { name: "Tech & Startups", slug: "tech-startups" },
-  { name: "Celebrities & Pop", slug: "celebrities-pop-culture" },
-  { name: "EVs & Automotive", slug: "electric-vehicles-automotive" },
-  { name: "Real Estate & Markets", slug: "real-estate-market-news" },
+  { name: "California", slug: "california" },
+  { name: "Texas", slug: "texas" },
+  { name: "Florida", slug: "florida" },
+  { name: "New York", slug: "new-york" },
+  { name: "Other States", slug: "other-states" },
 ];
 
 export default function Navbar() {

@@ -5,21 +5,29 @@ import { getSiteUrl } from "@/lib/seo";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
-  // Fetch all published posts
-  const posts = await prisma.post.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true, updatedAt: true, publishedAt: true },
-  });
+  let posts: any[] = [];
+  let categories: any[] = [];
+  let tags: any[] = [];
 
-  // Fetch all categories
-  const categories = await prisma.category.findMany({
-    select: { slug: true, updatedAt: true },
-  });
-
-  // Fetch all tags
-  const tags = await prisma.tag.findMany({
-    select: { slug: true, updatedAt: true },
-  });
+  try {
+    const [dbPosts, dbCategories, dbTags] = await Promise.all([
+      prisma.post.findMany({
+        where: { status: "PUBLISHED" },
+        select: { slug: true, updatedAt: true, publishedAt: true },
+      }),
+      prisma.category.findMany({
+        select: { slug: true, updatedAt: true },
+      }),
+      prisma.tag.findMany({
+        select: { slug: true, updatedAt: true },
+      }),
+    ]);
+    posts = dbPosts;
+    categories = dbCategories;
+    tags = dbTags;
+  } catch (error) {
+    console.error("Sitemap DB fallback:", error);
+  }
 
   const postUrls = posts.map((post) => ({
     url: `${siteUrl}/blog/${post.slug}`,

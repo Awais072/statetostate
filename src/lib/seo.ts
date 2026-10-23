@@ -1,7 +1,7 @@
 export const SITE_NAME = "StateToState";
-export const SITE_TAGLINE = "Independent Journalism Across Tech, Culture, Mobility & Real Estate";
+export const SITE_TAGLINE = "Independent Journalism Across U.S. State News & Developments";
 export const SITE_DESCRIPTION =
-  "StateToState is an authoritative digital publication exploring the frontiers of artificial intelligence, pop culture zeitgeist, next-generation electric vehicles, and macro urban real estate.";
+  "StateToState is an authoritative digital publication delivering breaking state news, legislative updates, economic developments, and investigative reporting across California, Texas, Florida, New York, and all 50 U.S. states.";
 
 export function getSiteUrl(): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) {

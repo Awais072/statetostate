@@ -18,7 +18,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="max-w-md text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              {SITE_TAGLINE}. We provide rigorous, long-form journalism deciphering the technological, architectural, automotive, and cultural vectors shaping modern society.
+              {SITE_TAGLINE}. We provide rigorous, long-form journalism delivering in-depth reporting, legislative analysis, and timely developments from across the United States.
             </p>
             <div className="text-xs text-zinc-500 dark:text-zinc-500">
               © {new Date().getFullYear()} {SITE_NAME}. All rights reserved. Content published under strict editorial standards.
@@ -28,39 +28,47 @@ export default function Footer() {
           {/* Categories */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-900 dark:text-zinc-200">
-              Editorial Beats
+              State News Beats
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
                 <Link
-                  href="/category/tech-startups"
+                  href="/category/california"
                   className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition-colors"
                 >
-                  Tech & Startups
+                  California
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/category/celebrities-pop-culture"
+                  href="/category/texas"
                   className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition-colors"
                 >
-                  Celebrities & Pop Culture
+                  Texas
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/category/electric-vehicles-automotive"
+                  href="/category/florida"
                   className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition-colors"
                 >
-                  Electric Vehicles & Automotive
+                  Florida
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/category/real-estate-market-news"
+                  href="/category/new-york"
                   className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition-colors"
                 >
-                  Real Estate & Market News
+                  New York
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/category/other-states"
+                  className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition-colors"
+                >
+                  Other States
                 </Link>
               </li>
             </ul>

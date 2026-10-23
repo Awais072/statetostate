@@ -115,7 +115,7 @@ export default function AdminCategoriesPage() {
           Editorial Beats & Categories
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Organize journalism across core niches: Tech & Startups, Pop Culture, EVs, and Real Estate.
+          Organize journalism across core state beats: California, Texas, Florida, New York, and Other States.
         </p>
       </div>
 

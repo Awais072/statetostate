@@ -12,20 +12,29 @@ import { SITE_NAME } from "@/lib/seo";
 export const revalidate = 60; // Incremental Static Regeneration every 60s for high SEO performance
 
 export default async function HomePage() {
-  const [posts, categories] = await Promise.all([
-    prisma.post.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { publishedAt: "desc" },
-      include: {
-        category: true,
-        author: { select: { name: true, avatar: true } },
-        tags: { include: { tag: true } },
-      },
-    }),
-    prisma.category.findMany({
-      orderBy: { name: "asc" },
-    }),
-  ]);
+  let posts: any[] = [];
+  let categories: any[] = [];
+
+  try {
+    const [dbPosts, dbCategories] = await Promise.all([
+      prisma.post.findMany({
+        where: { status: "PUBLISHED" },
+        orderBy: { publishedAt: "desc" },
+        include: {
+          category: true,
+          author: { select: { name: true, avatar: true } },
+          tags: { include: { tag: true } },
+        },
+      }),
+      prisma.category.findMany({
+        orderBy: { name: "asc" },
+      }),
+    ]);
+    posts = dbPosts;
+    categories = dbCategories;
+  } catch (error) {
+    console.error("HomePage data fetch fallback:", error);
+  }
 
   // Featured Hero Post
   const featuredPost = posts.find((p) => p.featured) || posts[0];
@@ -44,10 +53,10 @@ export default async function HomePage() {
             {SITE_NAME} • 2026 Editorial Edition
           </div>
           <h1 className="font-serif text-4xl font-black tracking-tight text-zinc-950 sm:text-6xl dark:text-white max-w-4xl leading-[1.1]">
-            Where breakthrough technology, culture, and architecture intersect.
+            Authoritative State News & Affairs Across America.
           </h1>
           <p className="max-w-2xl text-base text-zinc-700 sm:text-lg dark:text-zinc-300 leading-relaxed font-sans">
-            Independent analysis for leaders navigating the autonomous AI transformation, solid-state electric mobility, commercial real estate cycles, and the entertainment endgame.
+            Independent journalism uncovering legislative policy, economic shifts, infrastructure projects, and local developments across California, Texas, Florida, New York, and all 50 states.
           </p>
         </div>
 

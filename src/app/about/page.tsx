@@ -46,34 +46,34 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800 dark:bg-zinc-900/40">
               <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                Tech & Startups
+                California
               </h3>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Founders, venture capital financing, artificial intelligence infrastructure, cybersecurity architectures, and breakthrough software engineering practices.
+                Breaking state news, legislative developments in Sacramento, environmental and water policy, economic shifts, and local community reporting across California.
               </p>
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800 dark:bg-zinc-900/40">
               <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                Electric Vehicles & Automotive
+                Texas
               </h3>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Battery technology, robotaxi deployments, EV charging infrastructure, autonomous driving legislation, and the global automotive manufacturing transition.
+                Comprehensive reporting on the Texas legislature, regional economic growth, energy infrastructure, public education, and statewide municipal affairs.
               </p>
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800 dark:bg-zinc-900/40">
               <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                Real Estate & Market News
+                Florida
               </h3>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Commercial real estate transformations, residential mortgage rate trends, urban planning innovations, and modern architectural masterpieces.
+                State governance in Tallahassee, coastal infrastructure resilience, property insurance frameworks, and economic trends shaping communities statewide.
               </p>
             </div>
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800 dark:bg-zinc-900/40">
               <h3 className="font-bold text-zinc-900 dark:text-white text-base">
-                Celebrities & Pop Culture
+                New York & Other States
               </h3>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                Cultural zeitgeist analysis, entertainment streaming business models, the return of theatrical cinema prestige, and digital creator economies.
+                Statewide policy in Albany alongside dedicated coverage of Midwest, Western, and Southern statehouses navigating regional growth and governance.
               </p>
             </div>
           </div>
